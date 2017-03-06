@@ -1,9 +1,10 @@
 /* global miqHttpInject */
 
 angular.module('alertsCenter').controller('alertsListController',
-  ['$window', 'alertsCenterService', '$interval', '$timeout',
-  function($window, alertsCenterService, $interval, $timeout) {
+  ['$scope', '$window', 'alertsCenterService', '$interval',
+  function($scope, $window, alertsCenterService, $interval) {
     var vm = this;
+    var destroyInterval;
 
     vm.alerts = [];
     vm.alertsList = [];
@@ -25,8 +26,6 @@ angular.module('alertsCenter').controller('alertsListController',
       vm.alerts = updatedAlerts;
       vm.loadingDone = true;
       vm.filterChange();
-
-      $timeout();
     }
 
     function setupConfig() {
@@ -105,7 +104,7 @@ angular.module('alertsCenter').controller('alertsListController',
       alertsCenterService.updateAlertsData().then(processData);
 
       if (alertsCenterService.refreshInterval > 0) {
-        $interval(
+        destroyInterval = $interval(
           function() {
             alertsCenterService.updateAlertsData().then(processData);
           },
@@ -128,5 +127,11 @@ angular.module('alertsCenter').controller('alertsListController',
 
     setupConfig();
     getAlerts();
+
+    $scope.$on('destroy', function () {
+      if (angular.isFunction(destroyInterval)) {
+        destroyInterval();
+      }
+    });
   }
 ]);

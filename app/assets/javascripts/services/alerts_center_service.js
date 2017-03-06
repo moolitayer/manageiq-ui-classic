@@ -1,8 +1,8 @@
 angular.module('alertsCenter').service('alertsCenterService', alertsCenterService);
 
-alertsCenterService.$inject = ['API', '$q', '$timeout', '$document', '$modal', '$http'];
+alertsCenterService.$inject = ['API', '$timeout', '$document', '$modal', '$http'];
 
-function alertsCenterService(API, $q, $timeout, $document, $modal, $http) {
+function alertsCenterService(API, $timeout, $document, $modal, $http) {
   var _this = this;
   var providersURL = '/api/providers';
   var tagsURL = '/api/tags';
@@ -336,55 +336,35 @@ function alertsCenterService(API, $q, $timeout, $document, $modal, $http) {
   };
 
   _this.getCurrentUser = function() {
-    var deferred = $q.defer();
-
     // Get the current user
-    API.get('/api').then(function(response) {
+    return API.get('/api').then(function(response) {
       _this.currentUser = response.identity;
-      deferred.resolve();
     });
-
-    return deferred.promise;
   };
 
   _this.updateExistingUsers = function() {
-    var deferred = $q.defer();
 
     // Get the existing users
-    API.get('/api/users?expand=resources').then(function (response) {
+    return API.get('/api/users?expand=resources').then(function (response) {
       // update the existing users list and current user
       _this.existingUsers = response.resources;
       _this.existingUsers.sort(function(user1, user2) {
         return user1.name.localeCompare(user2.name);
       });
       _this.currentUser = _this.getUserByIdOrUserId(_this.currentUser.userid);
-
-      deferred.resolve();
     });
-
-    return deferred.promise;
   };
 
   _this.updateProviders = function() {
-    var deferred = $q.defer();
-
-    API.get(providersURL + '?expand=resources&attributes=tags').then(function(response) {
+    return API.get(providersURL + '?expand=resources&attributes=tags').then(function(response) {
       _this.providers = response.resources;
-      deferred.resolve();
     });
-
-    return deferred.promise;
   };
 
   _this.updateTags = function() {
-    var deferred = $q.defer();
-
-    API.get(tagsURL + '?expand=resources&attributes=category,categorization').then(function(response) {
+    return API.get(tagsURL + '?expand=resources&attributes=category,categorization').then(function(response) {
       _this.tags = response.resources;
-      deferred.resolve();
     });
-
-    return deferred.promise;
   };
 
   _this.updateAlertsData = function(limit, offset, filters, sortField, sortAscending) {
@@ -408,7 +388,6 @@ function alertsCenterService(API, $q, $timeout, $document, $modal, $http) {
     };
 
   _this.getAlertsData = function(limit, offset, filters, sortField, sortAscending) {
-    var deferred = $q.defer();
     var resourceOptions = '?expand=resources,alert_actions&attributes=assignee,resource';
     var limitOptions = '';
     var offsetOptions = '';
@@ -427,11 +406,9 @@ function alertsCenterService(API, $q, $timeout, $document, $modal, $http) {
     }
 
     // Get the alert data
-    API.get(alertsURL + resourceOptions + limitOptions + offsetOptions + sortOptions).then(function(response) {
-      deferred.resolve(response);
+    return API.get(alertsURL + resourceOptions + limitOptions + offsetOptions + sortOptions).then(function(response) {
+      return response;
     });
-
-    return deferred.promise;
   };
 
   function getObjectType(item) {
